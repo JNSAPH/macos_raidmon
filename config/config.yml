@@ -1,14 +1,45 @@
 Config:
-  checkValue: 600 # in seconds. Raidmon will check Raid status every X Seconds
+  # Check interval in seconds
+  # This value determines how often RAIDMON will check the status of the RAID sets.
+  checkValue: 600
 
 Mail:
+  # Enable or disable email notifications
+  # If set to true, RAIDMON will send emails for events like critical errors and daily reports.
+  # If set to false, no emails will be sent regardless of the event type.
   sendMail: true
-  maxSendEvery: 360 # in minutes. A Email will at max be sent every X hours
+
+  # Cooldown period for email notifications (in minutes)
+  # This value acts as a cooldown for sending email notifications. 
+  # Example: If set to 360, RAIDMON will wait 6 hours before sending another email.
+  maxSendEvery: 360
+
+  # Value in Cron format for daily report
+  # This value determines the hour of the day when RAIDMON will send daily reports.
+  # Example: If set to 0, RAIDMON will send daily reports at midnight.
+  dailyReportChron: 0  # Hour of the day to send daily reports (0-23)
+
+  # SMTP Server Configuration
+  # You can use any SMTP server, including Gmail.
+  # Example configuration for Gmail:
+  # smtp:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: "your_email@gmail.com"
+  #   password: ""  # You need to generate an App Password for Gmail. See: https://support.google.com/accounts/answer/185833?hl=en for more info.
   smtp:
-    host: server.mail.oovolabs.com
-    port: 587
-    username: "jonas@oovolabs.com"
-    password: "password"
+    host: server.mail.oovolabs.com  # Replace with your SMTP server host
+    port: 587  # The SMTP server port, typically 587 for TLS
+    username: "jonas@oovolabs.com"  # Your SMTP username
+    password: "password"  # Your SMTP password or app-specific password
+
+  # List of email recipients
+  # You can add as many email addresses as needed. All listed recipients will receive RAIDMON notifications.
   recipients:
-    - your_mail@aksdkasdkasdkadka.com
-  sender: "jonas@oovolabs.com"
+    - your_email@example.com  # Replace with actual recipient email addresses
+
+  # Sender's email address
+  # This email address will appear as the sender for all emails sent by RAIDMON.
+  # If using Gmail as your SMTP provider, the sender email should match the username used in the SMTP configuration.
+  # It is possible to use a different sender address if allowed by your SMTP server.
+  sender: "jonas@oovolabs.com"  # Replace with the desired sender email address

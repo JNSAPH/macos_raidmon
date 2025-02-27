@@ -14,9 +14,10 @@ type config struct {
 		CheckValue int `mapstructure:"checkvalue" validate:"required"`
 	} `mapstructure:"config"`
 	Mail struct {
-		SendMail     bool `mapstructure:"sendmail" validate:"required"`
-		MaxSendEvery int  `mapstructure:"maxsendevery" validate:"required"`
-		Smtp         struct {
+		SendMail         bool   `mapstructure:"sendmail" validate:"required"`
+		MaxSendEvery     int    `mapstructure:"maxsendevery" validate:"required"`
+		DailyReportChron string `mapstructure:"dailyreportchron" validate:"required"`
+		Smtp             struct {
 			Host     string `mapstructure:"host" validate:"required"`
 			Port     int    `mapstructure:"port" validate:"required"`
 			Username string `mapstructure:"username" validate:"required"`
