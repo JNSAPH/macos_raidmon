@@ -1,0 +1,14 @@
+Config:
+  checkValue: 600 # in seconds. Raidmon will check Raid status every X Seconds
+
+Mail:
+  sendMail: true
+  maxSendEvery: 360 # in minutes. A Email will at max be sent every X hours
+  smtp:
+    host: server.mail.oovolabs.com
+    port: 587
+    username: "jonas@oovolabs.com"
+    password: "password"
+  recipients:
+    - your_mail@aksdkasdkasdkadka.com
+  sender: "jonas@oovolabs.com"
