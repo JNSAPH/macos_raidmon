@@ -1,6 +1,21 @@
-# MOSS RaidMON  
+# 💾 MOSS RaidMON
 
-A tool that notifies you when it detects a failing drive. Written in Go, designed exclusively for macOS.  
+RaidMON is a tool for monitoring the health of RAID arrays on macOS. It periodically checks the status of all RAID sets and sends an email notification if any of them are degraded or failed.
+
+<img src=".github/assets/mail_s.png" width="300px">
+
+I've build this in a Day to monitor my own RAID setup since raideye is not supported on newer macOS versions. Follow the instructions below to set it up on your own system.
+
+# 📋 Features
+- **Email notifications** 
+  - Receive alerts when a RAID set is degraded or failed.
+  - Customize email templates.
+
+- **Auto-start on boot**
+  - Run the installer script to set auto-start on boot.
+
+- **Customizable settings**
+   - Configure the monitoring interval and email settings.
 
 # Installation
 
