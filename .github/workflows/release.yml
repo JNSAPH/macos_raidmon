@@ -43,6 +43,7 @@ jobs:
 
       - name: Package release
         run: |
+          ls -la
           tar -czf release/moss_raidmon-${{ github.event.inputs.version }}.tar.gz .
 
 
