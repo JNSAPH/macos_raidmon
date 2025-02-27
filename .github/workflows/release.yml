@@ -40,3 +40,17 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+
+      - name: Package release
+        run: |
+          mkdir -p release
+          mv release/* release/
+          tar -czf release/moss_raidmon-${{ github.event.inputs.version }}.tar.gz release/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          generate_release_notes: true
+          files: release/*.tar.gz
+          
