@@ -44,7 +44,6 @@ jobs:
       - name: Package release
         run: |
           ls -R
-          tar -czf release/moss_raidmon-${{ github.event.inputs.version }}.tar.gz moss_raidmon-release/
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
