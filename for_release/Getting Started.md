@@ -26,3 +26,9 @@ To enable RaidMON to start on boot, run the following command:
 MOSS RaidMON is now set up and ready to monitor your drives. You will receive email notifications in case of any issues with your RAID array. RAIDMon adds a Icon to your system tray to show the status of your RAID array:
 - 💾: RAIDMon is started and there are no Problems.
 - ⚠: RAIDMon is started and there are Problems with your RAID array. You should check your email for more information.
+
+# To Remove RaidMON
+To remove RaidMON from your system, run the following command:
+```bash
+./uninstall.sh
+```
