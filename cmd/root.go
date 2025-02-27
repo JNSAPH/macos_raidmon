@@ -27,6 +27,9 @@ var rootCmd = &cobra.Command{
 		core.SetupLogger()
 		core.SetupConfig()
 		core.SetupSystray()
+
+		// Stop the program from exiting
+		select {}
 	},
 }
 
