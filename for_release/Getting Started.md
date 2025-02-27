@@ -8,6 +8,20 @@ Open the `config/config.yml` file in a text editor and update the necessary fiel
 ## (Optional) Customize Notifications
 You can customize the email template by editing the files in the `templates` folder. 
 
+## ‼️ Important
+You might have to use xattr to remove the quarantine attribute from the files. You can do this by running the following command in the terminal:
+
+```bash
+xattr -cr ./moss_raidmon
+```
+
+Also make sure that the install and uninstall scripts have execute permissions. You can do this by running the following command in the terminal:
+
+```bash
+chmod +x ./install.sh
+chmod +x ./uninstall.sh
+```
+
 ## Start Monitoring
 Before adding RaidMON to the system startup, i suggest you run the tool once to ensure everything is working as expected. You can start RaidMON by running the following command in the terminal:
 
