@@ -9,7 +9,7 @@ import (
 	"howett.net/plist"
 )
 
-func GetRaidDetails() structs.Plist {
+func GetRaidDetails() structs.RaidDetails {
 	// Run the diskutil appleRAID list command
 	cmd := exec.Command("diskutil", "appleRAID", "list", "-plist")
 
@@ -19,7 +19,8 @@ func GetRaidDetails() structs.Plist {
 		log.Fatalf("Error executing command: %v\n", err)
 	}
 
-	var data structs.Plist
+	var data structs.RaidDetails
+
 	f := bytes.NewReader(output)
 	decoder := plist.NewDecoder(f)
 	if err := decoder.Decode(&data); err != nil {
@@ -27,5 +28,21 @@ func GetRaidDetails() structs.Plist {
 	}
 
 	// Return the plist
+	return data
+}
+
+func GetDriveDetails() structs.DriveDetails {
+	cmd := exec.Command("diskutil", "list", "-plist")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Error executing command: %v\n", err)
+	}
+
+	var data structs.DriveDetails
+	decoder := plist.NewDecoder(bytes.NewReader(output))
+	if err := decoder.Decode(&data); err != nil {
+		log.Fatalf("PLIST decode failed: %v", err)
+	}
+
 	return data
 }

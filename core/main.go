@@ -10,6 +10,7 @@ import (
 	"github.com/JNSAPH/macos_raidmon/mail"
 	"github.com/JNSAPH/macos_raidmon/structs"
 	"github.com/JNSAPH/macos_raidmon/utils"
+	"github.com/dustin/go-humanize"
 	"github.com/getlantern/systray"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,12 @@ func onReady() {
 	systray.AddMenuItem("RaidMON is running", "Raid Monitor is running")
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Exit the application")
+
+	// Get working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		logrus.Fatalf("Error getting working directory. Couldn't send email: ", err)
+	}
 
 	var foundDegraded []structs.AppleRAIDSet
 	var lastEmailSent time.Time
@@ -68,21 +75,17 @@ func onReady() {
 					if lastEmailSent.IsZero() || time.Since(lastEmailSent).Minutes() >= float64(AppConfig.Mail.MaxSendEvery) {
 						logrus.Debug("Sending email: either no previous email was sent or the last one was sent over an hour ago.")
 
-						// Get working directory
-						wd, err := os.Getwd()
-						if err != nil {
-							logrus.Error("Error getting working directory. Couldn't send email: ", err)
-							break
-						}
-
 						// Get E-Mail Template
 						templatePath := filepath.Join(wd, "templates", "degraded.html")
 
 						tmpl, err := template.New("degraded.html").Funcs(template.FuncMap{
-							"lower": strings.ToLower, // Add the 'lower' function
+							"lower": strings.ToLower,
 						}).ParseFiles(templatePath)
 						if err != nil {
 							logrus.Error("Error parsing template file. Couldn't send email: ", err)
+							for _, recipient := range AppConfig.Mail.Recipients {
+								emailSender.SendErrorMail(recipient, err)
+							}
 							break
 						}
 
@@ -96,6 +99,9 @@ func onReady() {
 						})
 						if err != nil {
 							logrus.Error("Error executing template. Couldn't send email: ", err)
+							for _, recipient := range AppConfig.Mail.Recipients {
+								emailSender.SendErrorMail(recipient, err)
+							}
 							break
 						}
 
@@ -104,6 +110,9 @@ func onReady() {
 							err := emailSender.SendEmail(recipient, "⚠ IMPORTANT: Your RAID Sets State Changed!", renderedTemplate)
 							if err != nil {
 								logrus.Error("Error sending email: ", err)
+								for _, recipient := range AppConfig.Mail.Recipients {
+									emailSender.SendErrorMail(recipient, err)
+								}
 								break
 							}
 						}
@@ -143,8 +152,84 @@ func onReady() {
 
 			c := cron.New()
 			_, err := c.AddFunc(AppConfig.Mail.DailyReportChron, func() {
+				// Vars
+				var overallStatus string = "Healthy"
+				var externalDrives []structs.Disk
+
+				// Chrono Code here pls uwu
 				logrus.Info("Running daily report")
+
+				// Get Drive Details
+				driveDetails := utils.GetDriveDetails()
+				raidDetails := utils.GetRaidDetails()
+
+				// Check Overall Status
+				for _, raidSet := range raidDetails.AppleRAIDSets {
+					if raidSet.Status != "Online" {
+						if raidSet.Status == "Degraded" {
+							overallStatus = "Dangerous"
+						} else {
+							overallStatus = "Problematic"
+						}
+						break
+					}
+				}
+
+				// Get Drive Details
+				for _, drive := range driveDetails.AllDisksAndPartitions {
+					if utils.IsExternalDisk(drive) {
+						externalDrives = append(externalDrives, drive)
+					}
+				}
+
+				// Get E-Mail Template
+				templatePath := filepath.Join(wd, "templates", "dailyreport.html")
+
+				tmpl, err := template.New("dailyreport.html").Funcs(template.FuncMap{
+					"lower":    strings.ToLower,
+					"humanize": humanize.Bytes,
+				}).ParseFiles(templatePath)
+				if err != nil {
+					logrus.Error("Error parsing template file. Couldn't send email: ", err)
+					for _, recipient := range AppConfig.Mail.Recipients {
+						emailSender.SendErrorMail(recipient, err)
+					}
+					return
+				}
+
+				// Execute Template
+				var renderedTemplate string
+				outputBuffer := &structs.TemplateBuffer{
+					Buffer: &renderedTemplate,
+				}
+
+				err = tmpl.Execute(outputBuffer, map[string]interface{}{
+					"OverallStatus": overallStatus,
+					"Drives":        externalDrives,
+					"Raids":         raidDetails.AppleRAIDSets,
+				})
+				if err != nil {
+					logrus.Error("Error executing template. Couldn't send email: ", err)
+					for _, recipient := range AppConfig.Mail.Recipients {
+						emailSender.SendErrorMail(recipient, err)
+					}
+					return
+				}
+
+				for _, recipient := range AppConfig.Mail.Recipients {
+					logrus.Info("Sending email to ", recipient)
+					err := emailSender.SendEmail(recipient, "Daily RAID Report", renderedTemplate)
+					if err != nil {
+						logrus.Error("Error sending email: ", err)
+						for _, recipient := range AppConfig.Mail.Recipients {
+							emailSender.SendErrorMail(recipient, err)
+						}
+						break
+					}
+				}
 			})
+
+			// Check for errors
 			if err != nil {
 				logrus.Error("Error adding daily report cron: ", err)
 			}
