@@ -124,7 +124,13 @@
             </tr>
             {{range .Drives}}
             <tr>
-                <td>{{.VolumeName}}</td>
+                <td>
+                    {{if .VolumeName}}
+                      {{.VolumeName}} ({{.DeviceIdentifier}})
+                    {{else}}
+                      {{.DeviceIdentifier}}
+                    {{end}}
+                  </td>                  
                 <td>{{.Size | humanize}}</td>
             </tr>
             {{end}}
