@@ -9,7 +9,7 @@ run: build
 	./bin/$(EXECUTABLE)
 
 dev: build
-	./bin/$(EXECUTABLE) --dev
+	./bin/$(EXECUTABLE) --dev --config=./config/dev.yml
 
 release: build
 	rm -rf $(RELEASE_DIR)

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/JNSAPH/macos_raidmon/core"
@@ -36,6 +37,9 @@ var rootCmd = &cobra.Command{
 func init() {
 	// Register the -dev flag with the root command
 	rootCmd.Flags().BoolVarP(&devFlag, "dev", "d", false, "Run in development mode")
+
+	// Register a Config path flag with the root command
+	rootCmd.Flags().StringVarP(&core.ConfigPath, "config", "c", fmt.Sprintf("%v/%v", core.DefaultConfigPath, core.DefaultConfigName), "Path to the config.yaml")
 }
 
 func Execute() {

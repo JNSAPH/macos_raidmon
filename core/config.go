@@ -1,13 +1,19 @@
 package core
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-const configPath = "./config"
-const configName = "config"
+var ConfigPath string
+var ConfigName string
+
+const DefaultConfigName = "config"
+const DefaultConfigPath = "./config"
 
 type config struct {
 	Config struct {
@@ -31,9 +37,15 @@ type config struct {
 var AppConfig *config
 
 func SetupConfig() {
-	// Set up Viper configuration
-	viper.SetConfigName(configName)
-	viper.AddConfigPath(configPath)
+
+	// Seperate file name and path into ConfigPath and ConfigName
+	ConfigPath, ConfigName = splitPath(ConfigPath)
+
+	logrus.Info("Config path: ", ConfigPath)
+	logrus.Info("Config name: ", ConfigName)
+
+	viper.SetConfigName(ConfigName)
+	viper.AddConfigPath(ConfigPath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		logrus.Fatal("Error reading config file: ", err)
@@ -59,4 +71,10 @@ func validateConfig(c config) {
 	}
 
 	logrus.Info("Configuration validated successfully")
+}
+
+func splitPath(fullPath string) (string, string) {
+	dir := filepath.Dir(fullPath)
+	file := strings.TrimSuffix(filepath.Base(fullPath), filepath.Ext(fullPath))
+	return dir, file
 }
