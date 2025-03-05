@@ -20,6 +20,7 @@ func GetRaidDetails() structs.RaidDetails {
 	}
 
 	var data structs.RaidDetails
+
 	f := bytes.NewReader(output)
 	decoder := plist.NewDecoder(f)
 	if err := decoder.Decode(&data); err != nil {
@@ -31,7 +32,17 @@ func GetRaidDetails() structs.RaidDetails {
 }
 
 func GetDriveDetails() structs.DriveDetails {
+	cmd := exec.Command("diskutil", "list", "-plist")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Error executing command: %v\n", err)
+	}
 
-	return structs.DriveDetails{}
+	var data structs.DriveDetails
+	decoder := plist.NewDecoder(bytes.NewReader(output))
+	if err := decoder.Decode(&data); err != nil {
+		log.Fatalf("PLIST decode failed: %v", err)
+	}
 
+	return data
 }

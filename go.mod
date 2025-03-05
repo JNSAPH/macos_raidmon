@@ -43,6 +43,7 @@ require (
 )
 
 require (
+	github.com/dustin/go-humanize v1.0.1
 	github.com/getlantern/systray v1.2.2
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

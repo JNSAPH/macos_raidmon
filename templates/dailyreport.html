@@ -43,7 +43,7 @@
             font-size: 18px;
             font-weight: bold;
         }
-        .summary-Degraded {
+        .summary-Dangerous {
             background: #dc3545;
             color: white;
             padding: 15px;
@@ -51,6 +51,25 @@
             text-align: center;
             font-size: 18px;
             font-weight: bold;
+        }
+        .status-degraded {
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .status-rebuilding {
+            color: #f0ad4e;
+            font-weight: bold;
+        }
+        .status-offline {
+            color: #5e2129;
+            font-weight: bold;
+        }
+        .status-failed {
+            color: #000;
+            font-weight: bold;
+            background: #ffaaaa;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
         .footer {
             font-size: 12px;
@@ -101,17 +120,32 @@
         <table>
             <tr>
                 <th>Drive</th>
-                <th>Status</th>
-                <th>Serial</th>
+                <th>Size</th>
             </tr>
             {{range .Drives}}
             <tr>
-                <td>{{.Drive}}</td>
-                <td class="status-{{lower .Status}}">{{.Status}}</td>
-                <td>{{.Serial}}</td>
+                <td>{{.VolumeName}}</td>
+                <td>{{.Size | humanize}}</td>
             </tr>
             {{end}}
         </table>
+        <p>Note: The table above also includes the RAID volume.</p>
+        
+
+        <p>Raid Status:</p>
+        <table>
+            <tr>
+                <th>Raid</th>
+                <th>Status</th>
+            </tr>
+            {{range .Raids}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td class="status-{{lower .Status}}">{{.Status}}</td>
+            </tr>
+            {{end}}
+        </table>
+        
 
         <p>Best regards,</p>
         <p><strong>MOSS RAID Monitoring</strong></p>
