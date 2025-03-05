@@ -33,6 +33,12 @@ func onReady() {
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Exit the application")
 
+	// Get working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		logrus.Fatalf("Error getting working directory. Couldn't send email: ", err)
+	}
+
 	var foundDegraded []structs.AppleRAIDSet
 	var lastEmailSent time.Time
 
@@ -67,13 +73,6 @@ func onReady() {
 					// Check if last email was sent over X ago
 					if lastEmailSent.IsZero() || time.Since(lastEmailSent).Minutes() >= float64(AppConfig.Mail.MaxSendEvery) {
 						logrus.Debug("Sending email: either no previous email was sent or the last one was sent over an hour ago.")
-
-						// Get working directory
-						wd, err := os.Getwd()
-						if err != nil {
-							logrus.Error("Error getting working directory. Couldn't send email: ", err)
-							break
-						}
 
 						// Get E-Mail Template
 						templatePath := filepath.Join(wd, "templates", "degraded.html")
@@ -141,10 +140,65 @@ func onReady() {
 		if AppConfig.Mail.SendMail {
 			logrus.Infof("Registering daily report cron: %s", AppConfig.Mail.DailyReportChron)
 
+			var overallStatus string = "Healthy"
+
 			c := cron.New()
 			_, err := c.AddFunc(AppConfig.Mail.DailyReportChron, func() {
+				// Chrono Code here pls uwu
 				logrus.Info("Running daily report")
+
+				// Get Drive Details
+				driveDetails := utils.GetDriveDetails()
+				raidDetails := utils.GetRaidDetails()
+
+				// Check Overall Status
+				for _, raidSet := range raidDetails.AppleRAIDSets {
+					if raidSet.Status != "Online" {
+						if raidSet.Status == "Degraded" {
+							overallStatus = "Degraded"
+						} else {
+							overallStatus = "Problematic"
+						}
+						break
+					}
+				}
+
+				// Get E-Mail Template
+				templatePath := filepath.Join(wd, "templates", "dailyreport.html")
+
+				tmpl, err := template.New("dailyreport.html").Funcs(template.FuncMap{
+					"lower": strings.ToLower, // Add the 'lower' function
+				}).ParseFiles(templatePath)
+				if err != nil {
+					logrus.Error("Error parsing template file. Couldn't send email: ", err)
+				}
+
+				// Execute Template
+				var renderedTemplate string
+				outputBuffer := &structs.TemplateBuffer{
+					Buffer: &renderedTemplate,
+				}
+
+				err = tmpl.Execute(outputBuffer, map[string]interface{}{
+					"OverallStatus": overallStatus,
+					"Drive":         driveDetails,
+					"Raid":          raidDetails,
+				})
+				if err != nil {
+					logrus.Error("Error executing template. Couldn't send email: ", err)
+				}
+
+				for _, recipient := range AppConfig.Mail.Recipients {
+					logrus.Info("Sending email to ", recipient)
+					err := emailSender.SendEmail(recipient, "Daily RAID Report", renderedTemplate)
+					if err != nil {
+						logrus.Error("Error sending email: ", err)
+						break
+					}
+				}
 			})
+
+			// Check for errors
 			if err != nil {
 				logrus.Error("Error adding daily report cron: ", err)
 			}

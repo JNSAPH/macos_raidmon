@@ -18,6 +18,14 @@ Mail:
   # This value determines the hour of the day when RAIDMON will send daily reports.
   # Example: If set to 0, RAIDMON will send daily reports at midnight.
   dailyReportChron: "* 22 * * *"
+  # * 21 * * *
+  # │ │ │ │ │
+  # │ │ │ │ └── Day of the week 
+  # │ │ │ └──── Month
+  # │ │ └────── Day of the month
+  # │ └──────── Hour 
+  # └────────── Minute
+
 
   # SMTP Server Configuration
   # You can use any SMTP server, including Gmail.

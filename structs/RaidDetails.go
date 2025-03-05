@@ -1,6 +1,6 @@
 package structs
 
-type Plist struct {
+type RaidDetails struct {
 	AppleRAIDSets []AppleRAIDSet `plist:"AppleRAIDSets"`
 }
 
